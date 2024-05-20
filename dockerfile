@@ -11,7 +11,7 @@ RUN pip install Werkzeug==2.2.2
 
 
 # install app
-COPY hello.py /
+COPY app.py /
 
 # ADD instruction
 RUN apt-get install git -y

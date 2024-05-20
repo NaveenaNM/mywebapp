@@ -1,23 +1,36 @@
-# Use the official Python image from the Docker Hub
-FROM python:3.8
-# Set the working directory in the container
-WORKDIR /app
+# syntax=docker/dockerfile:1
+FROM ubuntu:22.04
 
-# Copy the current directory contents into the container at /app
-COPY . /app
+ARG filename=env.txt
 
-# Install any needed packages specified in requirements.txt
-RUN pip install --trusted-host pypi.python.org -r requirements.txt
+# install app dependencies
+RUN apt-get update && apt-get install -y python3 python3-pip
 RUN pip install flask==2.1.*
 RUN pip install Werkzeug==2.2.2
 
-# Make port 80 available to the world outside this container
-EXPOSE 80
+
+
+# install app
+COPY hello.py /
+
+# ADD instruction
+RUN apt-get install git -y
+RUN mkdir /home/gitrepo
+ADD --keep-git-dir=true https://github.com/vcjain/docker-learning.git /home/gitrepo/
+
+# Environmemt Variable
+ENV FLASK_APP=hello MY_SECRET="secret"
+RUN echo "Here is the value of environment varaible: ${FLASK_APP}, ${MY_SECRET}"
+
+# Setting Metadata
+LABEL app="Pyhton"
+LABEL Framework="Flask"
+LABEL purpose="sample"
+
+# Volume
+RUN mkdir /home/mydata
+RUN echo "volume file: ${FLASK_APP}, ${MY_SECRET}" > /home/mydata/$filename
+VOLUME /home/mydata 
+
+EXPOSE 8000
 CMD flask run --host 0.0.0.0 --port 8000
-
-# Define environment variable
-ENV NAME World
-
-# Run app.py when the container launches
-CMD ["python", "app.py"]
-
